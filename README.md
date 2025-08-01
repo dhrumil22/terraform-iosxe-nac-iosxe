@@ -40,7 +40,7 @@ module "iosxe" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.8.0 |
-| <a name="requirement_iosxe"></a> [iosxe](#requirement\_iosxe) | >= 0.5.10 |
+| <a name="requirement_iosxe"></a> [iosxe](#requirement\_iosxe) | >= 0.6.1 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | >= 2.3.0 |
 | <a name="requirement_utils"></a> [utils](#requirement\_utils) | >= 1.0.1 |
 ## Inputs
@@ -101,6 +101,8 @@ module "iosxe" {
 | [iosxe_dhcp.dhcp](https://registry.terraform.io/providers/CiscoDevNet/iosxe/latest/docs/resources/dhcp) | resource |
 | [iosxe_dot1x.dot1x](https://registry.terraform.io/providers/CiscoDevNet/iosxe/latest/docs/resources/dot1x) | resource |
 | [iosxe_errdisable.errdisable](https://registry.terraform.io/providers/CiscoDevNet/iosxe/latest/docs/resources/errdisable) | resource |
+| [iosxe_evpn.evpn](https://registry.terraform.io/providers/CiscoDevNet/iosxe/latest/docs/resources/evpn) | resource |
+| [iosxe_evpn_instance.evpn_instance](https://registry.terraform.io/providers/CiscoDevNet/iosxe/latest/docs/resources/evpn_instance) | resource |
 | [iosxe_flow_exporter.flow_exporter](https://registry.terraform.io/providers/CiscoDevNet/iosxe/latest/docs/resources/flow_exporter) | resource |
 | [iosxe_flow_monitor.flow_monitors](https://registry.terraform.io/providers/CiscoDevNet/iosxe/latest/docs/resources/flow_monitor) | resource |
 | [iosxe_flow_record.flow_records](https://registry.terraform.io/providers/CiscoDevNet/iosxe/latest/docs/resources/flow_record) | resource |
