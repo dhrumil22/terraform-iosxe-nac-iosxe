@@ -13,6 +13,7 @@ resource "iosxe_evpn" "evpn" {
   default_gateway_advertise = try(local.device_config[each.value.name].evpn.default_gateway_advertise, local.defaults.iosxe.configuration.evpn.default_gateway_advertise, null)
   logging_peer_state        = try(local.device_config[each.value.name].evpn.logging_peer_state, local.defaults.iosxe.configuration.evpn.logging_peer_state, null)
   route_target_auto_vni     = try(local.device_config[each.value.name].evpn.route_target_auto_vni, local.defaults.iosxe.configuration.evpn.route_target_auto_vni, null)
+  anycast_gateway_mac_auto  = try(local.device_config[each.value.name].evpn.anycast_gateway_mac_auto, local.defaults.iosxe.configuration.evpn.anycast_gateway_mac_auto, null)
 }
 
 
@@ -35,10 +36,10 @@ locals {
         vlan_based_ip_local_learning_enable  = try(instance.vlan_based.ip_local_learning_enable, local.defaults.iosxe.configuration.evpn.instances.vlan_based.ip_local_learning_enable, null)
         vlan_based_default_gateway_advertise = try(instance.vlan_based.default_gateway_advertise == true ? "enable" : "disable", local.defaults.iosxe.configuration.evpn.instances.vlan_based.default_gateway_advertise == true ? "enable" : "disable", null)
         vlan_based_re_originate_route_type5  = try(instance.vlan_based.re_originate_route_type5, local.defaults.iosxe.configuration.evpn.instances.vlan_based.re_originate_route_type5, null)
-        vlan_based_route_target_imports = [for rt in try(instance.vlan_based.route_target_imports, []) : {
+        vlan_based_route_target_imports = try(length(instance.vlan_based.route_target_imports) == 0, true) ? null : [for rt in instance.vlan_based.route_target_imports : {
           route_target = try(rt, local.defaults.iosxe.configuration.evpn.instances.vlan_based.route_target_imports, null)
         }]
-        vlan_based_route_target_exports = [for rt in try(instance.vlan_based.route_target_exports, []) : {
+        vlan_based_route_target_exports = try(length(instance.vlan_based.route_target_exports) == 0, true) ? null : [for rt in instance.vlan_based.route_target_exports : {
           route_target = try(rt, local.defaults.iosxe.configuration.evpn.instances.vlan_based.route_target_exports, null)
         }]
     }]
