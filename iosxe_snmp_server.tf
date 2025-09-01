@@ -10,7 +10,9 @@ resource "iosxe_snmp_server" "snmp_server" {
   enable_traps                                       = try(local.device_config[each.value.name].snmp_server.enable_traps, local.defaults.iosxe.configuration.snmp_server.enable_traps, null)
   enable_traps_auth_framework_sec_violation          = try(local.device_config[each.value.name].snmp_server.traps.auth_framework_sec_violation, local.defaults.iosxe.configuration.snmp_server.traps.auth_framework_sec_violation, null)
   enable_traps_bfd                                   = try(local.device_config[each.value.name].snmp_server.traps.bfd, local.defaults.iosxe.configuration.snmp_server.traps.bfd, null)
+  enable_traps_bgp                                   = try(local.device_config[each.value.name].snmp_server.traps.bgp, local.defaults.iosxe.configuration.snmp_server.traps.bgp, null)
   enable_traps_bgp_cbgp2                             = try(local.device_config[each.value.name].snmp_server.traps.bgp_cbgp2, local.defaults.iosxe.configuration.snmp_server.traps.bgp_cbgp2, null)
+  enable_traps_cbgp2                                 = try(local.device_config[each.value.name].snmp_server.traps.cbgp2, local.defaults.iosxe.configuration.snmp_server.traps.cbgp2, null)
   enable_traps_bridge_newroot                        = try(local.device_config[each.value.name].snmp_server.traps.bridge_newroot, local.defaults.iosxe.configuration.snmp_server.traps.bridge_newroot, null)
   enable_traps_bridge_topologychange                 = try(local.device_config[each.value.name].snmp_server.traps.bridge_topologychange, local.defaults.iosxe.configuration.snmp_server.traps.bridge_topologychange, null)
   enable_traps_bulkstat_collection                   = try(local.device_config[each.value.name].snmp_server.traps.bulkstat_collection, local.defaults.iosxe.configuration.snmp_server.traps.bulkstat_collection, null)
@@ -202,12 +204,21 @@ resource "iosxe_snmp_server" "snmp_server" {
   contexts = try(length(local.device_config[each.value.name].snmp_server.contexts) == 0, true) ? null : [for context in local.device_config[each.value.name].snmp_server.contexts : {
     name = context
   }]
-  hosts = try(length(local.device_config[each.value.name].snmp_server.hosts) == 0, true) ? null : [for host in local.device_config[each.value.name].snmp_server.hosts : {
+  hosts = try(length([for host in local.device_config[each.value.name].snmp_server.hosts : host if try(host.vrf, null) == null]) == 0, true) ? null : [for host in local.device_config[each.value.name].snmp_server.hosts : {
     ip_address        = try(host.ip, local.defaults.iosxe.configuration.snmp_server.hosts.ip, null)
     community_or_user = try(host.user, host.community, local.defaults.iosxe.configuration.snmp_server.hosts.user, local.defaults.iosxe.configuration.snmp_server.hosts.community, null)
     encryption        = try(host.encryption, local.defaults.iosxe.configuration.snmp_server.hosts.encryption, null)
     version           = try(host.version, local.defaults.iosxe.configuration.snmp_server.hosts.version, null)
-  }]
+    security_level    = try(host.security_level, local.defaults.iosxe.configuration.snmp_server.hosts.security_level, null)
+  } if try(host.vrf, null) == null]
+  vrf_hosts = try(length([for host in local.device_config[each.value.name].snmp_server.hosts : host if try(host.vrf, null) != null]) == 0, true) ? null : [for host in local.device_config[each.value.name].snmp_server.hosts : {
+    ip_address        = try(host.ip, local.defaults.iosxe.configuration.snmp_server.hosts.ip, null)
+    vrf               = try(host.vrf, local.defaults.iosxe.configuration.snmp_server.hosts.vrf, null)
+    community_or_user = try(host.user, host.community, local.defaults.iosxe.configuration.snmp_server.hosts.user, local.defaults.iosxe.configuration.snmp_server.hosts.community, null)
+    encryption        = try(host.encryption, local.defaults.iosxe.configuration.snmp_server.hosts.encryption, null)
+    version           = try(host.version, local.defaults.iosxe.configuration.snmp_server.hosts.version, null)
+    security_level    = try(host.security_level, local.defaults.iosxe.configuration.snmp_server.hosts.security_level, null)
+  } if try(host.vrf, null) != null]
   snmp_communities = try(length(local.device_config[each.value.name].snmp_server.snmp_communities) == 0, true) ? null : [for e in local.device_config[each.value.name].snmp_server.snmp_communities : {
     name             = try(e.name, local.defaults.iosxe.configuration.snmp_server.snmp_communities.name, null)
     access_list_name = try(e.ipv4_acl, local.defaults.iosxe.configuration.snmp_server.snmp_communities.ipv4_acl, null)
@@ -220,6 +231,116 @@ resource "iosxe_snmp_server" "snmp_server" {
     mib     = try(e.mib, local.defaults.iosxe.configuration.snmp_server.views.mib, null)
     inc_exl = try(e.scope, local.defaults.iosxe.configuration.snmp_server.views.scope, null)
   }]
+  groups = try(length(local.device_config[each.value.name].snmp_server.groups) == 0, true) ? null : [for group in try(local.device_config[each.value.name].snmp_server.groups, []) : {
+    name = group.name
+    v3_security = try(length(group.v3_security_levels) == 0, true) ? null : [for e in group.v3_security_levels : {
+      security_level      = try(e.security_level, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.security_level, null)
+      context_node        = try(e.context_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.context_node, null)
+      match_node          = try(e.match_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.match_node, null)
+      read_node           = try(e.read_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.read_node, null)
+      write_node          = try(e.write_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.write_node, null)
+      notify_node         = try(e.notify_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.notify_node, null)
+      access_ipv6_acl     = try(e.access_ipv6_acl, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.access_ipv6_acl, null)
+      access_standard_acl = try(e.access_standard_acl, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.access_standard_acl, null)
+      access_acl_name     = try(e.access_acl_name, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.access_acl_name, null)
+    }]
+  }]
+  users = try(length(local.device_config[each.value.name].snmp_server.users) == 0, true) ? null : [for user in try(local.device_config[each.value.name].snmp_server.users, []) : {
+    username = try(user.name, local.defaults.iosxe.configuration.snmp_server.users.name, null)
+    grpname  = try(user.group, local.defaults.iosxe.configuration.snmp_server.users.group, null)
+
+    # Authentication settings
+    v3_auth_algorithm = try(user.v3_authentication.algorithm, local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.algorithm, null)
+    v3_auth_password  = try(user.v3_authentication.password, local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.password, null)
+
+    # Authentication access settings
+    v3_auth_access_ipv6_acl = try(user.v3_authentication.access.ipv6_acl,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.access.ipv6_acl,
+    null)
+    v3_auth_access_standard_acl = try(user.v3_authentication.access.standard_acl,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.access.standard_acl,
+    null)
+    v3_auth_access_acl_name = try(user.v3_authentication.access.acl_name,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.access.acl_name,
+    null)
+
+    # AES privacy settings
+    v3_auth_priv_aes_algorithm = try(
+      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.algorithm : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.algorithm,
+      null
+    )
+    v3_auth_priv_aes_password = try(
+      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.password : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.password,
+      null
+    )
+
+    # AES access settings
+    v3_auth_priv_aes_access_ipv6_acl = try(
+      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.ipv6_acl : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.ipv6_acl,
+      null
+    )
+    v3_auth_priv_aes_access_standard_acl = try(
+      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.standard_acl : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.standard_acl,
+      null
+    )
+    v3_auth_priv_aes_access_acl_name = try(
+      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.acl_name : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.acl_name,
+      null
+    )
+
+    # DES privacy settings
+    v3_auth_priv_des_password = try(
+      user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.password : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.password,
+      null
+    )
+
+    # DES access settings
+    v3_auth_priv_des_access_ipv6_acl = try(
+      user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.ipv6_acl : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.ipv6_acl,
+      null
+    )
+    v3_auth_priv_des_access_standard_acl = try(
+      user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.standard_acl : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.standard_acl,
+      null
+    )
+    v3_auth_priv_des_access_acl_name = try(
+      user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.acl_name : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.acl_name,
+      null
+    )
+
+    # 3DES privacy settings
+    v3_auth_priv_des3_password = try(
+      user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.password : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.password,
+      null
+    )
+
+    # 3DES access settings
+    v3_auth_priv_des3_access_ipv6_acl = try(
+      user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.ipv6_acl : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.ipv6_acl,
+      null
+    )
+    v3_auth_priv_des3_access_standard_acl = try(
+      user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.standard_acl : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.standard_acl,
+      null
+    )
+    v3_auth_priv_des3_access_acl_name = try(
+      user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.acl_name : null,
+      local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.acl_name,
+      null
+    )
+  }]
 
   depends_on = [
     iosxe_interface_ethernet.ethernet,
@@ -230,166 +351,4 @@ resource "iosxe_snmp_server" "snmp_server" {
     iosxe_access_list_standard.access_list_standard,
     iosxe_access_list_extended.access_list_extended
   ]
-}
-
-locals {
-  snmp_server_group = flatten([
-    for device in local.devices : [
-      for group in try(local.device_config[device.name].snmp_server.groups, []) : {
-        key    = format("%s/%s", device.name, group.name)
-        device = device.name
-        name   = group.name
-        v3_security = try(length(group.v3_security_levels) == 0, true) ? null : [for e in group.v3_security_levels : {
-          security_level      = try(e.security_level, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.security_level, null)
-          context_node        = try(e.context_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.context_node, null)
-          match_node          = try(e.match_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.match_node, null)
-          read_node           = try(e.read_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.read_node, null)
-          write_node          = try(e.write_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.write_node, null)
-          notify_node         = try(e.notify_node, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.notify_node, null)
-          access_ipv6_acl     = try(e.access_ipv6_acl, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.access_ipv6_acl, null)
-          access_standard_acl = try(e.access_standard_acl, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.access_standard_acl, null)
-          access_acl_name     = try(e.access_acl_name, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.access_acl_name, null)
-        }]
-      }
-    ]
-  ])
-}
-
-resource "iosxe_snmp_server_group" "snmp_server_group" {
-  for_each = { for e in local.snmp_server_group : e.key => e }
-  device   = each.value.device
-
-  name        = each.value.name
-  v3_security = each.value.v3_security
-}
-
-locals {
-  snmp_server_user = flatten([
-    for device in local.devices : [
-      for user in try(local.device_config[device.name].snmp_server.users, []) : {
-        key      = format("%s/%s", device.name, user.name)
-        device   = device.name
-        username = try(user.name, local.defaults.iosxe.configuration.snmp_server.users.name, null)
-        grpname  = try(user.group, local.defaults.iosxe.configuration.snmp_server.users.group, null)
-
-        # Authentication settings
-        v3_auth_algorithm = try(user.v3_authentication.algorithm, local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.algorithm, null)
-        v3_auth_password  = try(user.v3_authentication.password, local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.password, null)
-
-        # Authentication access settings
-        v3_auth_access_ipv6_acl = try(user.v3_authentication.access.ipv6_acl,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.access.ipv6_acl,
-        null)
-        v3_auth_access_standard_acl = try(user.v3_authentication.access.standard_acl,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.access.standard_acl,
-        null)
-        v3_auth_access_acl_name = try(user.v3_authentication.access.acl_name,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.access.acl_name,
-        null)
-
-        # AES privacy settings
-        v3_auth_priv_aes_algorithm = try(
-          user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.algorithm : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.algorithm,
-          null
-        )
-        v3_auth_priv_aes_password = try(
-          user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.password : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.password,
-          null
-        )
-
-        # AES access settings
-        v3_auth_priv_aes_access_ipv6_acl = try(
-          user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.ipv6_acl : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.ipv6_acl,
-          null
-        )
-        v3_auth_priv_aes_access_standard_acl = try(
-          user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.standard_acl : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.standard_acl,
-          null
-        )
-        v3_auth_priv_aes_access_acl_name = try(
-          user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.acl_name : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.acl_name,
-          null
-        )
-
-        # DES privacy settings
-        v3_auth_priv_des_password = try(
-          user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.password : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.password,
-          null
-        )
-
-        # DES access settings
-        v3_auth_priv_des_access_ipv6_acl = try(
-          user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.ipv6_acl : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.ipv6_acl,
-          null
-        )
-        v3_auth_priv_des_access_standard_acl = try(
-          user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.standard_acl : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.standard_acl,
-          null
-        )
-        v3_auth_priv_des_access_acl_name = try(
-          user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.acl_name : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.acl_name,
-          null
-        )
-
-        # 3DES privacy settings
-        v3_auth_priv_des3_password = try(
-          user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.password : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.password,
-          null
-        )
-
-        # 3DES access settings
-        v3_auth_priv_des3_access_ipv6_acl = try(
-          user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.ipv6_acl : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.ipv6_acl,
-          null
-        )
-        v3_auth_priv_des3_access_standard_acl = try(
-          user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.standard_acl : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.standard_acl,
-          null
-        )
-        v3_auth_priv_des3_access_acl_name = try(
-          user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.acl_name : null,
-          local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.acl_name,
-          null
-        )
-      }
-    ]
-  ])
-}
-
-resource "iosxe_snmp_server_user" "snmp_server_user" {
-  for_each = { for e in local.snmp_server_user : e.key => e }
-  device   = each.value.device
-
-  username                              = each.value.username
-  grpname                               = each.value.grpname
-  v3_auth_algorithm                     = each.value.v3_auth_algorithm
-  v3_auth_password                      = each.value.v3_auth_password
-  v3_auth_priv_aes_algorithm            = each.value.v3_auth_priv_aes_algorithm
-  v3_auth_priv_aes_password             = each.value.v3_auth_priv_aes_password
-  v3_auth_priv_aes_access_ipv6_acl      = each.value.v3_auth_priv_aes_access_ipv6_acl
-  v3_auth_priv_aes_access_standard_acl  = each.value.v3_auth_priv_aes_access_standard_acl
-  v3_auth_priv_aes_access_acl_name      = each.value.v3_auth_priv_aes_access_acl_name
-  v3_auth_priv_des_password             = each.value.v3_auth_priv_des_password
-  v3_auth_priv_des_access_ipv6_acl      = each.value.v3_auth_priv_des_access_ipv6_acl
-  v3_auth_priv_des_access_standard_acl  = each.value.v3_auth_priv_des_access_standard_acl
-  v3_auth_priv_des_access_acl_name      = each.value.v3_auth_priv_des_access_acl_name
-  v3_auth_priv_des3_password            = each.value.v3_auth_priv_des3_password
-  v3_auth_priv_des3_access_ipv6_acl     = each.value.v3_auth_priv_des3_access_ipv6_acl
-  v3_auth_priv_des3_access_standard_acl = each.value.v3_auth_priv_des3_access_standard_acl
-  v3_auth_priv_des3_access_acl_name     = each.value.v3_auth_priv_des3_access_acl_name
-  v3_auth_access_ipv6_acl               = each.value.v3_auth_access_ipv6_acl
-  v3_auth_access_standard_acl           = each.value.v3_auth_access_standard_acl
-  v3_auth_access_acl_name               = each.value.v3_auth_access_acl_name
 }
