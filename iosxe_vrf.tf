@@ -8,75 +8,66 @@ locals {
         description = try(vrf.description, local.defaults.iosxe.configuration.vrfs.description, null)
         rd          = try(vrf.route_distinguisher, local.defaults.iosxe.configuration.vrfs.route_distinguisher, null)
 
-        address_family_ipv4 = try(vrf.address_family_ipv4, local.defaults.iosxe.configuration.vrfs.address_family_ipv4, null)
-        address_family_ipv6 = try(vrf.address_family_ipv6, local.defaults.iosxe.configuration.vrfs.address_family_ipv6, null)
+        address_family_ipv4 = try(vrf.address_family_ipv4.enable, local.defaults.iosxe.configuration.vrfs.address_family_ipv4.enable, try(vrf.address_family_ipv4, null) != null ? true : null)
+        address_family_ipv6 = try(vrf.address_family_ipv6.enable, local.defaults.iosxe.configuration.vrfs.address_family_ipv6.enable, try(vrf.address_family_ipv6, null) != null ? true : null)
 
         vpn_id = try(vrf.vpn_id, local.defaults.iosxe.configuration.vrfs.vpn_id, null)
 
-        route_target_import = try(length(vrf.import_route_targets) == 0, true) ? null : [
-          for rt in vrf.import_route_targets : {
-            value     = try(rt.value, local.defaults.iosxe.configuration.vrfs.import_route_targets.value, null)
-            stitching = try(rt.stitching, local.defaults.iosxe.configuration.vrfs.import_route_targets.stitching, null)
-            ipv4      = try(rt.ipv4, local.defaults.iosxe.configuration.vrfs.import_route_targets.ipv4, null)
-            ipv6      = try(rt.ipv6, local.defaults.iosxe.configuration.vrfs.import_route_targets.ipv6, null)
+
+        ipv4_route_target_import = try(length(vrf.address_family_ipv4.import_route_targets) == 0, true) ? null : [
+          for rt in vrf.address_family_ipv4.import_route_targets : {
+            value = rt
           }
         ]
 
-        route_target_export = try(length(vrf.export_route_targets) == 0, true) ? null : [
-          for rt in vrf.export_route_targets : {
-            value     = try(rt.value, local.defaults.iosxe.configuration.vrfs.export_route_targets.value, null)
-            stitching = try(rt.stitching, local.defaults.iosxe.configuration.vrfs.export_route_targets.stitching, null)
-            ipv4      = try(rt.ipv4, local.defaults.iosxe.configuration.vrfs.export_route_targets.ipv4, null)
-            ipv6      = try(rt.ipv6, local.defaults.iosxe.configuration.vrfs.export_route_targets.ipv6, null)
+        ipv4_route_target_import_stitching = try(length(vrf.address_family_ipv4.import_route_targets_stitching) == 0, true) ? null : [
+          for rt in vrf.address_family_ipv4.import_route_targets_stitching : {
+            value = rt
           }
         ]
 
-        ipv4_route_target_import = try(length(vrf.ipv4_route_target_imports) == 0, true) ? null : [
-          for rt in vrf.ipv4_route_target_imports : {
-            value = try(rt.value, local.defaults.iosxe.configuration.vrfs.ipv4_route_target_imports.value, null)
-          } if try(rt.stitching, false) == false
+        ipv4_route_target_export = try(length(vrf.address_family_ipv4.export_route_targets) == 0, true) ? null : [
+          for rt in vrf.address_family_ipv4.export_route_targets : {
+            value = rt
+          }
         ]
 
-        ipv4_route_target_import_stitching = try(length(vrf.ipv4_route_target_imports) == 0, true) ? null : [
-          for rt in vrf.ipv4_route_target_imports : {
-            value = try(rt.value, local.defaults.iosxe.configuration.vrfs.ipv4_route_target_imports.value, null)
-          } if try(rt.stitching, false) == true
+        ipv4_route_target_export_stitching = try(length(vrf.address_family_ipv4.export_route_targets_stitching) == 0, true) ? null : [
+          for rt in vrf.address_family_ipv4.export_route_targets_stitching : {
+            value = rt
+          }
         ]
 
-        ipv4_route_target_export = try(length(vrf.ipv4_route_target_exports) == 0, true) ? null : [
-          for rt in vrf.ipv4_route_target_exports : {
-            value = try(rt.value, local.defaults.iosxe.configuration.vrfs.ipv4_route_target_exports.value, null)
-          } if try(rt.stitching, false) == false
+        ipv4_route_replicate = try(length(vrf.address_family_ipv4.route_replicate) == 0, true) ? null : [
+          for rr in vrf.address_family_ipv4.route_replicate : {
+            name                  = rr.name
+            unicast_all           = true
+            unicast_all_route_map = try(rr.route_map, null)
+          }
         ]
 
-        ipv4_route_target_export_stitching = try(length(vrf.ipv4_route_target_exports) == 0, true) ? null : [
-          for rt in vrf.ipv4_route_target_exports : {
-            value = try(rt.value, local.defaults.iosxe.configuration.vrfs.ipv4_route_target_exports.value, null)
-          } if try(rt.stitching, false) == true
+        ipv6_route_target_import = try(length(vrf.address_family_ipv6.import_route_targets) == 0, true) ? null : [
+          for rt in vrf.address_family_ipv6.import_route_targets : {
+            value = rt
+          }
         ]
 
-        ipv6_route_target_import = try(length(vrf.ipv6_route_target_imports) == 0, true) ? null : [
-          for rt in vrf.ipv6_route_target_imports : {
-            value = try(rt.value, local.defaults.iosxe.configuration.vrfs.ipv6_route_target_imports.value, null)
-          } if try(rt.stitching, false) == false
+        ipv6_route_target_import_stitching = try(length(vrf.address_family_ipv6.import_route_targets_stitching) == 0, true) ? null : [
+          for rt in vrf.address_family_ipv6.import_route_targets_stitching : {
+            value = rt
+          }
         ]
 
-        ipv6_route_target_import_stitching = try(length(vrf.ipv6_route_target_imports) == 0, true) ? null : [
-          for rt in vrf.ipv6_route_target_imports : {
-            value = try(rt.value, local.defaults.iosxe.configuration.vrfs.ipv6_route_target_imports.value, null)
-          } if try(rt.stitching, false) == true
+        ipv6_route_target_export = try(length(vrf.address_family_ipv6.export_route_targets) == 0, true) ? null : [
+          for rt in vrf.address_family_ipv6.export_route_targets : {
+            value = rt
+          }
         ]
 
-        ipv6_route_target_export = try(length(vrf.ipv6_route_target_exports) == 0, true) ? null : [
-          for rt in vrf.ipv6_route_target_exports : {
-            value = try(rt.value, local.defaults.iosxe.configuration.vrfs.ipv6_route_target_exports.value, null)
-          } if try(rt.stitching, false) == false
-        ]
-
-        ipv6_route_target_export_stitching = try(length(vrf.ipv6_route_target_exports) == 0, true) ? null : [
-          for rt in vrf.ipv6_route_target_exports : {
-            value = try(rt.value, local.defaults.iosxe.configuration.vrfs.ipv6_route_target_exports.value, null)
-          } if try(rt.stitching, false) == true
+        ipv6_route_target_export_stitching = try(length(vrf.address_family_ipv6.export_route_targets_stitching) == 0, true) ? null : [
+          for rt in vrf.address_family_ipv6.export_route_targets_stitching : {
+            value = rt
+          }
         ]
       }
     ]
@@ -96,13 +87,11 @@ resource "iosxe_vrf" "vrf" {
 
   vpn_id = each.value.vpn_id
 
-  route_target_import = each.value.route_target_import
-  route_target_export = each.value.route_target_export
-
   ipv4_route_target_import           = each.value.ipv4_route_target_import
   ipv4_route_target_import_stitching = each.value.ipv4_route_target_import_stitching
   ipv4_route_target_export           = each.value.ipv4_route_target_export
   ipv4_route_target_export_stitching = each.value.ipv4_route_target_export_stitching
+  ipv4_route_replicate               = each.value.ipv4_route_replicate
 
   ipv6_route_target_import           = each.value.ipv6_route_target_import
   ipv6_route_target_import_stitching = each.value.ipv6_route_target_import_stitching

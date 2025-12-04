@@ -184,21 +184,21 @@ resource "iosxe_snmp_server" "snmp_server" {
   location                                           = try(local.device_config[each.value.name].snmp_server.location, local.defaults.iosxe.configuration.snmp_server.location, null)
   packetsize                                         = try(local.device_config[each.value.name].snmp_server.packet_size, local.defaults.iosxe.configuration.snmp_server.packet_size, null)
   queue_length                                       = try(local.device_config[each.value.name].snmp_server.queue_length, local.defaults.iosxe.configuration.snmp_server.queue_length, null)
-  source_interface_informs_forty_gigabit_ethernet    = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "FortyGigabitEthernet" ? try(local.device_config[each.value.name].snmp_server.source_interface_informs_id, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
-  source_interface_informs_gigabit_ethernet          = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "GigabitEthernet" ? try(local.device_config[each.value.name].snmp_server.source_interface_informs_id, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
-  source_interface_informs_hundred_gig_e             = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "HundredGigE" ? try(local.device_config[each.value.name].snmp_server.source_interface_informs_id, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
+  source_interface_informs_forty_gigabit_ethernet    = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "FortyGigabitEthernet" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_informs_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
+  source_interface_informs_gigabit_ethernet          = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "GigabitEthernet" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_informs_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
+  source_interface_informs_hundred_gig_e             = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "HundredGigE" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_informs_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
   source_interface_informs_loopback                  = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "Loopback" ? try(local.device_config[each.value.name].snmp_server.source_interface_informs_id, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
-  source_interface_informs_port_channel              = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "PortChannel" ? try(local.device_config[each.value.name].snmp_server.source_interface_informs_id, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
-  source_interface_informs_port_channel_subinterface = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "PortChannelSubinterface" ? try(local.device_config[each.value.name].snmp_server.source_interface_informs_id, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
-  source_interface_informs_ten_gigabit_ethernet      = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "TenGigabitEthernet" ? try(local.device_config[each.value.name].snmp_server.source_interface_informs_id, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
+  source_interface_informs_port_channel              = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "PortChannel" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_informs_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
+  source_interface_informs_port_channel_subinterface = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "PortChannelSubinterface" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_informs_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
+  source_interface_informs_ten_gigabit_ethernet      = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "TenGigabitEthernet" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_informs_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
   source_interface_informs_vlan                      = try(local.device_config[each.value.name].snmp_server.source_interface_informs_type, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_type, null) == "Vlan" ? try(local.device_config[each.value.name].snmp_server.source_interface_informs_id, local.defaults.iosxe.configuration.snmp_server.source_interface_informs_id, null) : null
-  source_interface_traps_forty_gigabit_ethernet      = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "FortyGigabitEthernet" ? try(local.device_config[each.value.name].snmp_server.source_interface_traps_id, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
-  source_interface_traps_gigabit_ethernet            = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "GigabitEthernet" ? try(local.device_config[each.value.name].snmp_server.source_interface_traps_id, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
-  source_interface_traps_hundred_gig_e               = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "HundredGigE" ? try(local.device_config[each.value.name].snmp_server.source_interface_traps_id, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
+  source_interface_traps_forty_gigabit_ethernet      = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "FortyGigabitEthernet" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_traps_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
+  source_interface_traps_gigabit_ethernet            = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "GigabitEthernet" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_traps_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
+  source_interface_traps_hundred_gig_e               = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "HundredGigE" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_traps_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
   source_interface_traps_loopback                    = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "Loopback" ? try(local.device_config[each.value.name].snmp_server.source_interface_traps_id, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
-  source_interface_traps_port_channel                = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "PortChannel" ? try(local.device_config[each.value.name].snmp_server.source_interface_traps_id, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
-  source_interface_traps_port_channel_subinterface   = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "PortChannelSubinterface" ? try(local.device_config[each.value.name].snmp_server.source_interface_traps_id, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
-  source_interface_traps_ten_gigabit_ethernet        = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "TenGigabitEthernet" ? try(local.device_config[each.value.name].snmp_server.source_interface_traps_id, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
+  source_interface_traps_port_channel                = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "PortChannel" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_traps_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
+  source_interface_traps_port_channel_subinterface   = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "PortChannelSubinterface" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_traps_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
+  source_interface_traps_ten_gigabit_ethernet        = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "TenGigabitEthernet" ? try(trimprefix(local.device_config[each.value.name].snmp_server.source_interface_traps_id, "$string "), local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
   source_interface_traps_vlan                        = try(local.device_config[each.value.name].snmp_server.source_interface_traps_type, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_type, null) == "Vlan" ? try(local.device_config[each.value.name].snmp_server.source_interface_traps_id, local.defaults.iosxe.configuration.snmp_server.source_interface_traps_id, null) : null
   system_shutdown                                    = try(local.device_config[each.value.name].snmp_server.system_shutdown, local.defaults.iosxe.configuration.snmp_server.system_shutdown, null)
   contexts = try(length(local.device_config[each.value.name].snmp_server.contexts) == 0, true) ? null : [for context in local.device_config[each.value.name].snmp_server.contexts : {
@@ -231,7 +231,7 @@ resource "iosxe_snmp_server" "snmp_server" {
     mib     = try(e.mib, local.defaults.iosxe.configuration.snmp_server.views.mib, null)
     inc_exl = try(e.scope, local.defaults.iosxe.configuration.snmp_server.views.scope, null)
   }]
-  groups = try(length(local.device_config[each.value.name].snmp_server.groups) == 0, true) ? null : [for group in try(local.device_config[each.value.name].snmp_server.groups, []) : {
+  groups = try(length(local.device_config[each.value.name].snmp_server.groups) == 0, true) ? null : [for group in local.device_config[each.value.name].snmp_server.groups : {
     name = group.name
     v3_security = try(length(group.v3_security_levels) == 0, true) ? null : [for e in group.v3_security_levels : {
       security_level      = try(e.security_level, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.security_level, null)
@@ -245,7 +245,7 @@ resource "iosxe_snmp_server" "snmp_server" {
       access_acl_name     = try(e.access_acl_name, local.defaults.iosxe.configuration.snmp_server.groups.v3_securities.access_acl_name, null)
     }]
   }]
-  users = try(length(local.device_config[each.value.name].snmp_server.users) == 0, true) ? null : [for user in try(local.device_config[each.value.name].snmp_server.users, []) : {
+  users = try(length(local.device_config[each.value.name].snmp_server.users) == 0, true) ? null : [for user in local.device_config[each.value.name].snmp_server.users : {
     username = try(user.name, local.defaults.iosxe.configuration.snmp_server.users.name, null)
     grpname  = try(user.group, local.defaults.iosxe.configuration.snmp_server.users.group, null)
 
@@ -266,77 +266,77 @@ resource "iosxe_snmp_server" "snmp_server" {
 
     # AES privacy settings
     v3_auth_priv_aes_algorithm = try(
-      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.algorithm : null,
+      user.v3_authentication.privacy.aes.enable ? user.v3_authentication.privacy.aes.algorithm : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.algorithm,
       null
     )
     v3_auth_priv_aes_password = try(
-      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.password : null,
+      user.v3_authentication.privacy.aes.enable ? user.v3_authentication.privacy.aes.password : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.password,
       null
     )
 
     # AES access settings
     v3_auth_priv_aes_access_ipv6_acl = try(
-      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.ipv6_acl : null,
+      user.v3_authentication.privacy.aes.enable ? user.v3_authentication.privacy.aes.access.ipv6_acl : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.ipv6_acl,
       null
     )
     v3_auth_priv_aes_access_standard_acl = try(
-      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.standard_acl : null,
+      user.v3_authentication.privacy.aes.enable ? user.v3_authentication.privacy.aes.access.standard_acl : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.standard_acl,
       null
     )
     v3_auth_priv_aes_access_acl_name = try(
-      user.v3_authentication.privacy.aes.enabled ? user.v3_authentication.privacy.aes.access.acl_name : null,
+      user.v3_authentication.privacy.aes.enable ? user.v3_authentication.privacy.aes.access.acl_name : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.aes.access.acl_name,
       null
     )
 
     # DES privacy settings
     v3_auth_priv_des_password = try(
-      user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.password : null,
+      user.v3_authentication.privacy.des.enable ? user.v3_authentication.privacy.des.password : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.password,
       null
     )
 
     # DES access settings
     v3_auth_priv_des_access_ipv6_acl = try(
-      user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.ipv6_acl : null,
+      user.v3_authentication.privacy.des.enable ? user.v3_authentication.privacy.des.access.ipv6_acl : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.ipv6_acl,
       null
     )
     v3_auth_priv_des_access_standard_acl = try(
-      user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.standard_acl : null,
+      user.v3_authentication.privacy.des.enable ? user.v3_authentication.privacy.des.access.standard_acl : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.standard_acl,
       null
     )
     v3_auth_priv_des_access_acl_name = try(
-      user.v3_authentication.privacy.des.enabled ? user.v3_authentication.privacy.des.access.acl_name : null,
+      user.v3_authentication.privacy.des.enable ? user.v3_authentication.privacy.des.access.acl_name : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des.access.acl_name,
       null
     )
 
     # 3DES privacy settings
     v3_auth_priv_des3_password = try(
-      user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.password : null,
+      user.v3_authentication.privacy.des3.enable ? user.v3_authentication.privacy.des3.password : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.password,
       null
     )
 
     # 3DES access settings
     v3_auth_priv_des3_access_ipv6_acl = try(
-      user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.ipv6_acl : null,
+      user.v3_authentication.privacy.des3.enable ? user.v3_authentication.privacy.des3.access.ipv6_acl : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.ipv6_acl,
       null
     )
     v3_auth_priv_des3_access_standard_acl = try(
-      user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.standard_acl : null,
+      user.v3_authentication.privacy.des3.enable ? user.v3_authentication.privacy.des3.access.standard_acl : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.standard_acl,
       null
     )
     v3_auth_priv_des3_access_acl_name = try(
-      user.v3_authentication.privacy.des3.enabled ? user.v3_authentication.privacy.des3.access.acl_name : null,
+      user.v3_authentication.privacy.des3.enable ? user.v3_authentication.privacy.des3.access.acl_name : null,
       local.defaults.iosxe.configuration.snmp_server.users.v3_authentication.privacy.des3.access.acl_name,
       null
     )
